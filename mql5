@@ -1,0 +1,88 @@
+
+// Program: Nadaraya Watson Envelope LUX EA
+// Developer: Forex Robot Easy Team
+// Site: forexroboteasy.com
+
+// Include necessary libraries
+#include <Trade\Trade.mqh>
+#include <Envelopes\Envelopes.mqh>
+
+// Define constant variables
+#define SYMBOL 'EURUSD'
+#define LOT_SIZE 0.01
+#define MAGIC_NUMBER 123456
+
+// Initialize global variables
+CTrade trade;
+CEnvelopes envelopes;
+
+// Define the OnTick function to handle market movements
+void OnTick()
+{
+   // Get the current price
+   double currentPrice = SymbolInfoDouble(SYMBOL, SYMBOL_ASK);
+
+   // Calculate the Nadaraya Watson Envelope indicator values
+   double upperEnvelope = envelopes.iEnvelopes(SYMBOL, PERIOD_CURRENT, MODE_UPPER, 14, 0, PRICE_CLOSE, 0);
+   double lowerEnvelope = envelopes.iEnvelopes(SYMBOL, PERIOD_CURRENT, MODE_LOWER, 14, 0, PRICE_CLOSE, 0);
+
+   // Check if the current price is above the upper envelope
+   if (currentPrice > upperEnvelope)
+   {
+      // Open a sell trade
+      trade.Sell(LOT_SIZE, SYMBOL, currentPrice, 0, 0, 0, 0, 'Nadaraya Watson Envelope LUX EA');
+   }
+   // Check if the current price is below the lower envelope
+   else if (currentPrice < lowerEnvelope)
+   {
+      // Open a buy trade
+      trade.Buy(LOT_SIZE, SYMBOL, currentPrice, 0, 0, 0, 0, 'Nadaraya Watson Envelope LUX EA');
+   }
+}
+
+// Define the OnDeinit function to clean up resources
+void OnDeinit(const int reason)
+{
+   // Close any open trades
+   trade.CloseAll();
+
+   // Deinitialize the trade and envelopes objects
+   trade.Deinit();
+   envelopes.Deinit();
+}
+
+// Define the OnInit function to initialize the trade and envelopes objects
+void OnInit()
+{
+   // Initialize the trade and envelopes objects
+   trade.Init();
+   envelopes.Init();
+}
+
+// Define the OnStart function to start the trading robot
+void OnStart()
+{
+   // Subscribe to the market
+   trade.SubscribeSymbol(SYMBOL);
+
+   // Set the magic number for the robot
+   trade.SetExpertMagicNumber(MAGIC_NUMBER);
+}
+
+// Define the main entry point of the program
+int OnCalculate(const int ratesTotal,
+               const int prev_calculated,
+               const datetime &time[],
+               const double &open[],
+               const double &high[],
+               const double &low[],
+               const double &close[],
+               const long &tick_volume[],
+               const long &volume[],
+               const int &spread[])
+{
+   // Perform any necessary calculations or analysis here
+
+   // Return the number of calculated bars
+   return ratesTotal;
+}
